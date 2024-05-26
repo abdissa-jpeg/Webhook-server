@@ -21,7 +21,7 @@ app.post("/flutterWaveWebhook", async (req, res) => {
     const payload = req.body;
     // It's a good idea to log all received events.
     console.log(payload);
-    const invoiceDetails = await Invoice.findById(payload.data.txref);
+    const invoiceDetails = await Invoice.findById(payload.data.txRef);
     const contract = await Contract.findById(invoiceDetails.contractId);
     const response = await flw.Transaction.verify({ id: payload.data.id });
     if (
