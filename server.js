@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {MONGO_URL} = require('./config').default;
+const {MONGO_URL} = require('./config');
 process.on('uncaughtException', err => {
     console.log("err: ", err)
     console.log('UNCAUGHT EXCEPTION! Shutting down...');

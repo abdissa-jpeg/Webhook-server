@@ -9,7 +9,7 @@ const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY
 const FLW_SECRET_HASH = process.env.FLW_SECRET_HASH
 const FLW_BASE = process.env.FLW_BASE
 
-export default {
+module.exports = {
     MONGO_URL,
     PAYPAL_CLIENT_ID,
     PAYPAL_CLIENT_SECRET,
