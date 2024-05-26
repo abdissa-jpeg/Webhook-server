@@ -33,7 +33,7 @@ app.post("/flutterWaveWebhook", async (req, res) => {
       response.data.currency === contract.paymentCurrency
     ) {
       // Inform the customer their payment was successful
-      invoiceDetails.status = "Paid";
+      invoiceDetails.status = "Fully Paid";
       await invoiceDetails.save();
       const transaction = await Transaction.create({
         invoiceId: invoiceDetails._id,
