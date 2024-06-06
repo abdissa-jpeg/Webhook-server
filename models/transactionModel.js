@@ -1,11 +1,9 @@
-const { string } = require("joi");
 const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema({
   invoiceId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Invoice",
-    required: true,
+    ref: "Invoice"
   },
   withdrawalId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -13,27 +11,25 @@ const transactionSchema = new mongoose.Schema({
   },
   companyId:{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'CompanyProfile',
-    required: true
+    ref: 'CompanyProfile'
   },
   talentId:{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'TalentProfile',
     required: true
   },
-  paymentMethod:{
+  transactionType:{
+    type:String,
+    enum:['Withdrawal','Payment'],
+    required:true
+  },
+  transactionMethod:{
     type:String,
     enum:['Paypal','Wise',"FlutterWave"],
     required:true
   },
   transactionDetails: {
     type:Object,
-    required:true
-  },
-  withdrawalStatus: {
-    type: String,
-    enum:['Not Withdrawn','Withdrawn'],
-    default: 'Not Withdrawn',
     required:true
   }
 },{ timestamps: true });

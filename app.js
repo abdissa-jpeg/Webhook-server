@@ -3,6 +3,8 @@ const Flutterwave = require("flutterwave-node-v3");
 const Invoice = require("./models/invoiceModel");
 const Contract = require("./models/contractModel");
 const Transaction = require("./models/transactionModel");
+const Withdrawal = require("./models/withdrawalModel");
+const Balance = require("./models/balanceModel");
 const { FLW_SECRET_HASH, FLW_PUBLIC_KEY, FLW_SECRET_KEY } = require("./config");
 const flw = new Flutterwave(FLW_PUBLIC_KEY, FLW_SECRET_KEY);
 const app = express();
@@ -22,9 +24,9 @@ app.post("/flutterWaveWebhook", async (req, res) => {
     // It's a good idea to log all received events.
     console.log("Payload: /n/n")
     console.log(payload);
-    const invoiceDetails = await Invoice.findById(payload.txRef);
-    const contract = await Contract.findById(invoiceDetails.contractId);
     const response = await flw.Transaction.verify({ id: payload.id });
+    const invoiceDetails = await Invoice.findById(response.data.meta.invoiceId);
+    const contract = await Contract.findById(invoiceDetails.contractId);
     console.log("Response: /n/n")
     console.log(response);
     if (
@@ -35,14 +37,23 @@ app.post("/flutterWaveWebhook", async (req, res) => {
       // Inform the customer their payment was successful
       invoiceDetails.status = "Fully Paid";
       await invoiceDetails.save();
-      const transaction = await Transaction.create({
+      const withdrawalMethod = await Withdrawal.findOne({userId: contract.talentId});
+      await Transaction.create({
         invoiceId: invoiceDetails._id,
         companyId: contract.companyId,
         talentId: contract.talentId,
-        paymentMethod: "FlutterWave",
-        transactionDetails: response,
+        withdrawalId:withdrawalMethod._id,
+        transactionType:"Payment",
+        transactionMethod: "FlutterWave",
+        transactionDetails: response.data,
       });
-
+      const currency = response.data.currency
+      const totalReceivable = response.data.amount_settled;
+      await Balance.findOneAndUpdate(
+        { talentId: invoiceDetails.talentId },
+        { $inc: { [`balance.${currency}`]: totalReceivable } },
+        { upsert: true }
+      );
       return res
         .status(200)
         .json({
